@@ -1,8 +1,14 @@
+matrix = []
+num_rows = 0
+
 with open("uf20-01.cnf", "r") as f:
     for i, line in enumerate(f):
-        if i >= 8:  # Inicia leitura a partir da linha 9 (índice 8)
+        if i == 7:
+            num_rows = int(line.split()[3])
+            matrix = [[] for _ in range(num_rows)]
+        elif i >= 8:
             variables = line.split()
-            if len(variables) == 4:  # Verifica se existem 4 variáveis na linha
-                var1, var2, var3, var4 = variables
-                # Faça algo com as variáveis, por exemplo, imprimi-las
-                print(var1, var2, var3, var4)
+            if len(variables) == 4:
+                matrix[i-8] = [int(v) for v in variables]
+
+print(matrix)
