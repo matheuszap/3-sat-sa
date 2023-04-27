@@ -66,20 +66,20 @@ def generate_neighbor(solution, num_var):
 
     return neighbor
 
-def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t):
+def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var, num_rows):
     current_solution = initial_solution
     current_score = evaluate_solution(current_solution, var_dict, matrix)
     best_solution = current_solution.copy()
-    best_score = current_score
+    best_score = num_rows - current_score
 
     for it in range(max_iter):
         temperature = (1 - it/max_iter) ** t
 
         # Gerar vizinho aleatório
         neighbor = generate_neighbor(current_solution, num_var)
-
+        n_dict = map_solution(num_var, neighbor)
         # Avaliar o vizinho
-        neighbor_score = evaluate_solution(neighbor, var_dict, matrix)
+        neighbor_score = num_rows - evaluate_solution(neighbor, n_dict, matrix)
 
         # Aceitar o vizinho com uma determinada probabilidade
         delta_score = neighbor_score - current_score
@@ -92,29 +92,16 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t):
             best_solution = current_solution.copy()
             best_score = current_score
 
-    return best_solution, best_score
+        map_b_solution = map_solution(num_var, best_solution)
+
+    return map_b_solution, best_score
 
 
 matrix, num_var, num_rows = read_cnf("uf20-01.cnf")
 
-print(matrix)
-print("Número de variáveis: " + str(num_var))
-print("Número de cláusulas: " + str(num_rows))
-print("-------------------------------------------")
-print("Solução Inicial:")
 initial_solution = initial_random_solution(num_var)
 
-map = map_solution(num_var, initial_solution)
-print(map)
+var_dict = map_solution(num_var, initial_solution)
 
-result = evaluate_solution(initial_solution, map, matrix)
-true_clauses = num_rows - result
-
-print("Número de cláusulas satisfeitas: " + str(true_clauses))
-print("-------------------------------------------")
-print("Vizinho:")
-neighbor = generate_neighbor(initial_solution, num_var)
-
-map_neighbor = map_solution(num_var, neighbor)
-
-print(map_neighbor)
+r = simulated_annealing(initial_solution, var_dict, matrix, 200000, 3, num_var, num_rows)
+print(r)
