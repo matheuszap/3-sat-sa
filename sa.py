@@ -1,5 +1,6 @@
 import math
 import random
+import matplotlib.pyplot as plt
 
 matrix = []
 num_rows = 0
@@ -72,6 +73,7 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
     best_solution = current_solution.copy()
     best_score = num_rows - current_score
 
+    scores = [best_score]  # lista para armazenar os scores a cada iteração
     for it in range(max_iter):
         temperature = (1 - it/max_iter) ** t
 
@@ -93,15 +95,26 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
             best_score = current_score
 
         map_b_solution = map_solution(num_var, best_solution)
+        
+        scores.append(best_score)  # adicionar o score à lista a cada iteração
+
+    # Plotar o gráfico
+    plt.plot(range(max_iter+1), scores)  # X: número de iterações, Y: quantidade de cláusulas aceitas
+    plt.xlabel('Número de Iterações')
+    plt.ylabel('Quantidade de Cláusulas Aceitas')
+    plt.show()
 
     return map_b_solution, best_score
 
 
-matrix, num_var, num_rows = read_cnf("uf20-01.cnf")
+
+matrix, num_var, num_rows = read_cnf("uf100-01.cnf")
 
 initial_solution = initial_random_solution(num_var)
 
 var_dict = map_solution(num_var, initial_solution)
 
-r = simulated_annealing(initial_solution, var_dict, matrix, 200000, 3, num_var, num_rows)
+num_it = 200000
+
+r = simulated_annealing(initial_solution, var_dict, matrix, num_it, 1, num_var, num_rows)
 print(r)
