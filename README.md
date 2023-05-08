@@ -10,12 +10,12 @@ Utilização do Simulated Annealing (SA) para resolução do problema 3-SAT
 
 <center>
 
-    ![Gráfico de Convergência](convergencia.png)
+![Gráfico de Convergência](convergencia.png)
 
 </center>
 
 <center>
 
-    ![Gráfico de Temperatura](temperatura.png)
+![Gráfico de Temperatura](temperatura.png)
 
 </center>
