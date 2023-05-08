@@ -72,16 +72,19 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
     current_score = evaluate_solution(current_solution, var_dict, matrix)
     best_solution = current_solution.copy()
     best_score = num_rows - current_score
+    
     rangeScore = 0
     scores = [best_score]  # lista para armazenar os scores a cada iteração
     temp = []
+    iter = []
+
     for it in range(max_iter):
         temperature = (1 - (it/max_iter)) ** t
 
-        print(temperature)
         # Gerar vizinho aleatório
         neighbor = generate_neighbor(current_solution, num_var)
         n_dict = map_solution(num_var, neighbor)
+
         # Avaliar o vizinho
         neighbor_score = num_rows - evaluate_solution(neighbor, n_dict, matrix)
 
@@ -99,33 +102,30 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
 
         map_b_solution = map_solution(num_var, best_solution)
         
+        # Define um range de plot para melhorar a visualização do gráfico
         rangeScore = rangeScore + 1
-        if (rangeScore == 100):
+        if (rangeScore == 500):
             rangeScore = 0
-            scores.append(current_score)  # adicionar o score à lista a cada iteração
+            scores.append(current_score)  
             temp.append(temperature)
+            iter.append(it)
+            
+            print(temperature)
 
-        #scores.append(current_score)  # adicionar o score à lista a cada iteração
-        #temp.append(temperature)
 
     # Plotar o gráfico
-    plt.plot(range(max_iter+1)/100, scores)  # X: número de iterações, Y: quantidade de cláusulas aceitas
+    plt.plot(range(0, len(iter)+1), scores)
     plt.xlabel('Número de Iterações')
     plt.ylabel('Quantidade de Cláusulas Aceitas')
     plt.savefig('convergencia.png')
-    #plt.show()
     plt.close()
 
-
-    plt.plot(range(max_iter)/100, temp)
+    plt.plot(iter, temp)
     plt.xlabel('Número de Iterações')
     plt.ylabel('Temperatura')
     plt.savefig('temperatura.png')
-    #plt.show()
 
     return map_b_solution, best_score
-
-
 
 matrix, num_var, num_rows = read_cnf("uf20-01.cnf")
 
@@ -133,7 +133,7 @@ initial_solution = initial_random_solution(num_var)
 
 var_dict = map_solution(num_var, initial_solution)
 
-num_it = 250000
+num_it = 100000
 
-r = simulated_annealing(initial_solution, var_dict, matrix, num_it, 3, num_var, num_rows)
+r = simulated_annealing(initial_solution, var_dict, matrix, num_it, 4, num_var, num_rows)
 print(r)
