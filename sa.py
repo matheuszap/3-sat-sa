@@ -67,6 +67,45 @@ def generate_neighbor(solution, num_var):
 
     return neighbor
 
+def random_search(initial_solution, max_iter, var_dict, matrix, num_rows):
+    current_solution = initial_solution
+    current_score = evaluate_solution(current_solution, var_dict, matrix)
+    best_solution = current_solution.copy()
+    best_score = num_rows - current_score
+    scores = [best_score]
+    iter = []
+
+    for it in range(max_iter):
+        # Gerar uma nova solução aleatória
+        new_solution = initial_random_solution(len(current_solution))
+        new_score = evaluate_solution(new_solution, var_dict, matrix)
+
+        # Atualizar a solução atual caso a nova solução seja melhor
+        if new_score > current_score:
+            current_solution = new_solution
+            current_score = new_score
+
+        # Atualizar a melhor solução encontrada
+        if current_score > best_score:
+            best_solution = current_solution.copy()
+            best_score = current_score
+
+        map_b_solution = map_solution(len(current_solution), best_solution)
+
+        # Armazenar a melhor solução encontrada a cada iteração
+        scores.append(new_score)
+        iter.append(it)
+
+    # Plotar o gráfico
+    plt.plot(range(0, len(iter)+1), scores)
+    plt.xlabel('Número de Iterações')
+    plt.ylabel('Número de Cláusulas Satisfeitas')
+    #plt.show()
+    plt.savefig('rs.png')
+
+    return map_b_solution, best_score
+
+
 def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var, num_rows):
     current_solution = initial_solution
     current_score = evaluate_solution(current_solution, var_dict, matrix)
@@ -104,7 +143,7 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
         
         # Define um range de plot para melhorar a visualização do gráfico
         rangeScore = rangeScore + 1
-        if (rangeScore == 500):
+        if (rangeScore == 1000):
             rangeScore = 0
             scores.append(current_score)  
             temp.append(temperature)
@@ -112,10 +151,9 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
             
             print(temperature)
 
-
     # Plotar o gráfico
     plt.plot(range(0, len(iter)+1), scores)
-    plt.xlabel('Número de Iterações')
+    plt.xlabel('Número de Iterações (Núm. Iterações/Range)')
     plt.ylabel('Quantidade de Cláusulas Aceitas')
     plt.savefig('convergencia.png')
     plt.close()
@@ -133,7 +171,10 @@ initial_solution = initial_random_solution(num_var)
 
 var_dict = map_solution(num_var, initial_solution)
 
-num_it = 100000
+num_it = 1000
 
-r = simulated_annealing(initial_solution, var_dict, matrix, num_it, 4, num_var, num_rows)
-print(r)
+#r = simulated_annealing(initial_solution, var_dict, matrix, num_it, 4, num_var, num_rows)
+
+rs = random_search(initial_solution, num_it, var_dict, matrix, num_rows)
+
+print(rs)
