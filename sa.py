@@ -1,4 +1,3 @@
-import math
 import random
 import matplotlib.pyplot as plt
 
@@ -67,13 +66,14 @@ def generate_neighbor(solution, num_var):
 
     return neighbor
 
-def random_search(initial_solution, max_iter, var_dict, matrix, num_rows):
+def random_search(initial_solution, max_iter, var_dict, matrix, num_rows, max_range):
     current_solution = initial_solution
     current_score = evaluate_solution(current_solution, var_dict, matrix)
     best_solution = current_solution.copy()
     best_score = num_rows - current_score
     scores = [best_score]
     iter = []
+    rangeScore = 0
 
     for it in range(max_iter):
         # Gerar uma nova solução aleatória
@@ -90,23 +90,26 @@ def random_search(initial_solution, max_iter, var_dict, matrix, num_rows):
             best_solution = current_solution.copy()
             best_score = current_score
 
-        map_b_solution = map_solution(len(current_solution), best_solution)
-
-        # Armazenar a melhor solução encontrada a cada iteração
-        scores.append(new_score)
-        iter.append(it)
+        # Define um range de plot para melhorar a visualização do gráfico
+        rangeScore = rangeScore + 1
+        if (rangeScore == max_range):
+            rangeScore = 0
+            scores.append(num_rows - new_score)
+            iter.append(it)
 
     # Plotar o gráfico
+    plt.ylim(0, num_rows)
     plt.plot(range(0, len(iter)+1), scores)
-    plt.xlabel('Número de Iterações')
+    plt.xlabel('Número de Iterações (Núm. Iterações/Range)')
     plt.ylabel('Número de Cláusulas Satisfeitas')
     #plt.show()
     plt.savefig('rs.png')
 
+    map_b_solution = map_solution(len(current_solution), best_solution)
     return map_b_solution, best_score
 
 
-def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var, num_rows):
+def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var, num_rows, max_range):
     current_solution = initial_solution
     current_score = evaluate_solution(current_solution, var_dict, matrix)
     best_solution = current_solution.copy()
@@ -143,7 +146,7 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
         
         # Define um range de plot para melhorar a visualização do gráfico
         rangeScore = rangeScore + 1
-        if (rangeScore == 1000):
+        if (rangeScore == max_range):
             rangeScore = 0
             scores.append(current_score)  
             temp.append(temperature)
@@ -152,6 +155,7 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
             print(temperature)
 
     # Plotar o gráfico
+    #plt.ylim(0, num_rows)
     plt.plot(range(0, len(iter)+1), scores)
     plt.xlabel('Número de Iterações (Núm. Iterações/Range)')
     plt.ylabel('Quantidade de Cláusulas Aceitas')
@@ -162,19 +166,22 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
     plt.xlabel('Número de Iterações')
     plt.ylabel('Temperatura')
     plt.savefig('temperatura.png')
+    plt.close()
 
     return map_b_solution, best_score
 
 matrix, num_var, num_rows = read_cnf("uf20-01.cnf")
-
 initial_solution = initial_random_solution(num_var)
-
 var_dict = map_solution(num_var, initial_solution)
 
-num_it = 1000
+num_it = 100000
+max_range = 500
 
-#r = simulated_annealing(initial_solution, var_dict, matrix, num_it, 4, num_var, num_rows)
+result_sa = simulated_annealing(initial_solution, var_dict, matrix, num_it, 5, num_var, num_rows, max_range)
+result_rs = random_search(initial_solution, num_it, var_dict, matrix, num_rows, max_range)
 
-rs = random_search(initial_solution, num_it, var_dict, matrix, num_rows)
+print("Simulated Annealing:")
+print(result_sa)
 
-print(rs)
+print("Random Search:")
+print(result_rs)
