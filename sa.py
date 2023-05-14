@@ -158,7 +158,7 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
     #plt.ylim(0, num_rows)
     plt.plot(range(0, len(iter)+1), scores)
     plt.xlabel('Número de Iterações (Núm. Iterações/Range)')
-    plt.ylabel('Quantidade de Cláusulas Aceitas')
+    plt.ylabel('Número de Cláusulas Satisfeitas')
     plt.savefig('convergencia.png')
     plt.close()
 
