@@ -5,6 +5,7 @@ matrix = []
 num_rows = 0
 num_var = 0
 
+
 def read_cnf(file_name):
     with open(file_name, "r") as f:
         for i, line in enumerate(f):
@@ -18,11 +19,13 @@ def read_cnf(file_name):
                     matrix[i-8] = [int(v) for v in variables]
     return matrix, num_var, num_rows
 
+
 def initial_random_solution(num_var):
     initial_solution = []
     for i in range(num_var):
         initial_solution.append(random.choice([0, 1]))
     return initial_solution
+
 
 def map_solution(num_var, initial_solution):
     map = {}
@@ -30,6 +33,7 @@ def map_solution(num_var, initial_solution):
         var_name = 'v{}'.format(i+1)
         map[var_name] = initial_solution[i]
     return map
+
 
 def evaluate_solution(solution, var_dict, matrix):
     # Inicializa o número de cláusulas não satisfeitas
@@ -50,6 +54,7 @@ def evaluate_solution(solution, var_dict, matrix):
     # Retorna o número de cláusulas não satisfeitas
     return num_clausulas_nao_satisfeitas
 
+
 def generate_neighbor(solution, num_var):
     # Calcula o número de variáveis a serem invertidas
     num_var_invertidas = max(1, int(num_var / 4))
@@ -65,6 +70,7 @@ def generate_neighbor(solution, num_var):
         neighbor[indice] = 1 - neighbor[indice]
 
     return neighbor
+
 
 def random_search(initial_solution, max_iter, var_dict, matrix, num_rows, max_range):
     current_solution = initial_solution
@@ -102,8 +108,9 @@ def random_search(initial_solution, max_iter, var_dict, matrix, num_rows, max_ra
     plt.plot(range(0, len(iter)+1), scores)
     plt.xlabel('Número de Iterações (Núm. Iterações/Range)')
     plt.ylabel('Número de Cláusulas Satisfeitas')
-    #plt.show()
+    # plt.show()
     plt.savefig('rs.png')
+    plt.close()
 
     map_b_solution = map_solution(len(current_solution), best_solution)
     return map_b_solution, best_score
@@ -114,7 +121,7 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
     current_score = evaluate_solution(current_solution, var_dict, matrix)
     best_solution = current_solution.copy()
     best_score = num_rows - current_score
-    
+
     rangeScore = 0
     scores = [best_score]  # lista para armazenar os scores a cada iteração
     temp = []
@@ -143,19 +150,19 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
             best_score = current_score
 
         map_b_solution = map_solution(num_var, best_solution)
-        
+
         # Define um range de plot para melhorar a visualização do gráfico
         rangeScore = rangeScore + 1
         if (rangeScore == max_range):
             rangeScore = 0
-            scores.append(current_score)  
+            scores.append(current_score)
             temp.append(temperature)
             iter.append(it)
-            
+
             print(temperature)
 
     # Plotar o gráfico
-    #plt.ylim(0, num_rows)
+    # plt.ylim(0, num_rows)
     plt.plot(range(0, len(iter)+1), scores)
     plt.xlabel('Número de Iterações (Núm. Iterações/Range)')
     plt.ylabel('Número de Cláusulas Satisfeitas')
@@ -170,18 +177,36 @@ def simulated_annealing(initial_solution, var_dict, matrix, max_iter, t, num_var
 
     return map_b_solution, best_score
 
-matrix, num_var, num_rows = read_cnf("uf20-01.cnf")
+
+file_name = "uf100-01.cnf"
+matrix, num_var, num_rows = read_cnf(file_name)
 initial_solution = initial_random_solution(num_var)
 var_dict = map_solution(num_var, initial_solution)
 
 num_it = 100000
-max_range = 500
+max_range = 100
 
-result_sa = simulated_annealing(initial_solution, var_dict, matrix, num_it, 5, num_var, num_rows, max_range)
-result_rs = random_search(initial_solution, num_it, var_dict, matrix, num_rows, max_range)
+results_sa = []
+results_rs = []
 
-print("Simulated Annealing:")
-print(result_sa)
+for i in range(2):
+    result_sa = simulated_annealing(
+        initial_solution, var_dict, matrix, num_it, 4, num_var, num_rows, max_range)
+    results_sa.append(result_sa)
 
-print("Random Search:")
-print(result_rs)
+    result_rs = random_search(initial_solution, num_it,
+                              var_dict, matrix, num_rows, max_range)
+    results_rs.append(result_rs)
+
+
+log_filename = f"results/result_{file_name}.txt"
+
+# Abre o arquivo de log e escreve os resultados
+with open(log_filename, "w") as f:
+    f.write("Simulated Annealing: \n")
+    for result in results_sa:
+        f.write(f"{result}\n")
+
+    f.write("Random Search: \n")
+    for result in results_rs:
+        f.write(f"{result}\n")
